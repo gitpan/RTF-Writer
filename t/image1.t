@@ -1,16 +1,23 @@
 
+require 5;
+# Time-stamp: "2003-10-14 18:48:00 ADT"
+
 use strict;
 use Test;
 
-BEGIN { plan tests => 6 }
+BEGIN { plan tests => 10 }
 
-use RTF::Writer;
+use RTF::Writer 1.10;
 ok 1;
 
-chdir "t" if -e "t";
+sub isbal ($) { (my $x = $_[0]) =~ tr/\{\}//cd; while($x =~ s/\{\}//g){;}; length($x) ? 0 : 1 }
 
 foreach my $i (qw(png jpg)) {
-  my $filename = "hypnocat_$i.rtf";
+  my $errorcount;
+  my $filename = "hypnocat1_$i.rtf";
+  use File::Spec;
+  $filename = File::Spec::->catfile( File::Spec::->curdir(), $filename);
+
   my $rtf = RTF::Writer->new_to_file($filename);
   $rtf->prolog( 'title' => "Greetings, $i hyoomon" );
   $rtf->number_pages;
@@ -19,7 +26,17 @@ foreach my $i (qw(png jpg)) {
     "Hi there!"
   );
 
-  $rtf->image_paragraph('filename' => "hypnocat.$i",
+  my $imagepath;
+  ok(
+   -e(
+    $imagepath = File::Spec::->catfile( File::Spec::->curdir(), 't', "hypnocat.$i")
+   ) or -e(
+    $imagepath = File::Spec::->catfile( File::Spec::->curdir(), "hypnocat.$i")
+   )
+   or 0
+  );
+
+  $rtf->image_paragraph('filename' => $imagepath,
    scaley =>  200,
    scalex =>  200,
     wgoal => 1300,
@@ -27,6 +44,8 @@ foreach my $i (qw(png jpg)) {
     cropl =>  200,
   
   );
+  $rtf->paragraph("Here's a subsequent paragraph.");
+
   $rtf->close;
   ok 1;
   undef $rtf;
@@ -37,8 +56,12 @@ foreach my $i (qw(png jpg)) {
     my $rtf = <IN>;
     close(IN);
     
-    ok $rtf, '/\\\\pict/';  # simple sanity
+    ok $rtf, '/\\\\pict/' or ++$errorcount;  # simple sanity
+    ok isbal($rtf), 1, "$filename 's RTF is unbalanced"
+     or ++$errorcount;
+
   }
+  $errorcount or unlink $filename;
 }
 
 print "# Byebye\n";

@@ -1,5 +1,5 @@
 
-# Time-stamp: "2003-09-26 13:47:59 ADT"
+# Time-stamp: "2003-10-14 18:28:06 ADT"
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
@@ -14,6 +14,7 @@ WriteMakefile(
     'PREREQ_PM'     => {
        'Exporter' => 0,
        'Carp'   => 0,
+       'File::Path'  => 0, # the tests use it
        #'utf8'   => 0,
        'Image::Size' => 0, # I /think/ any version'll do
        'strict' => 0,

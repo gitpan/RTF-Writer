@@ -1,7 +1,7 @@
 
 require 5.005;   # we need m/...\z/
 package RTF::Writer;
-use strict;      # Time-stamp: "2003-09-26 13:48:31 ADT"
+use strict;      # Time-stamp: "2003-10-14 18:18:00 ADT"
 
 BEGIN { eval {require utf8}; $INC{"utf8.pm"} = "dummy_value" if $@ }
   # hack to allow "use utf8" under old Perls
@@ -18,7 +18,7 @@ $WRAP    = 1 unless defined $WRAP;        # TODO: document
 
 require Exporter;
 @ISA = ('Exporter');
-$VERSION = '1.09';
+$VERSION = '1.10';
 @EXPORT_OK = qw( inch inches in point points pt cm rtfesc );
 
 sub DEBUG () {0}
@@ -411,7 +411,7 @@ sub image {
    unless defined wantarray;
   my $r = shift;
   my($filename, $declcode) = $r->_image_params(@_);
-  my $out = "\\pict\n$declcode";
+  my $out = "{\\pict\n$declcode";
   $r->_image_data($filename, \$out );
   $out .= "}\n";
   return \$out;

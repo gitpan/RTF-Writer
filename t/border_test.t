@@ -1,15 +1,19 @@
 
+require 5;
+# Time-stamp: "2003-10-14 17:51:37 ADT"
 use strict;
 use Test;
 
-BEGIN { plan tests => 7 }
+BEGIN { plan tests => 8 }
+
+sub isbal ($) { (my $x = $_[0]) =~ tr/\{\}//cd; while($x =~ s/\{\}//g){;}; length($x) ? 0 : 1 }
 
 use RTF::Writer;
 ok 1;
 
-chdir "t" if -e "t";
-
 my $f = "bordery.rtf";
+use File::Spec;
+$f = File::Spec::->catfile( File::Spec::->curdir(), $f);
 
 my $doc = RTF::Writer->new_to_file($f);
 $doc->prolog;
@@ -26,6 +30,8 @@ $doc->row($t, $x, $x, $x,      $x);
 $doc->close;
 undef $doc;
 
+my $errorcount = 0;
+
 ok 1;
 {
   my $rtf;
@@ -33,11 +39,13 @@ ok 1;
   local $/;
   $rtf = <IN>;
   close(IN);
-  ok $rtf, '/\\\\brdrs\\b/';
-  ok $rtf, '/\\\\brdrwavy\\b/';
-  ok scalar( grep 1, $rtf =~ m/(\\brdrs)\b/g),    8;
-  ok scalar( grep 1, $rtf =~ m/(\\brdrwavy)\b/g), 8;
+  ok $rtf, '/\\\\brdrs\\b/'  or ++$errorcount;
+  ok $rtf, '/\\\\brdrwavy\\b/'  or ++$errorcount;
+  ok scalar( grep 1, $rtf =~ m/(\\brdrs)\b/g),    8 or ++$errorcount;
+  ok scalar( grep 1, $rtf =~ m/(\\brdrwavy)\b/g), 8 or ++$errorcount;;
+  ok isbal($rtf), 1, "Unbalanced: $rtf";
 }
 
+$errorcount or unlink $f;
 print "# Bye...\n";
 ok 1;

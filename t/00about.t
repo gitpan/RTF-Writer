@@ -1,4 +1,7 @@
 
+require 5;
+# Time-stamp: "2003-10-14 16:04:06 ADT"
+
 # Summary of, well, things.
 
 use Test;
@@ -6,8 +9,8 @@ BEGIN {plan tests => 2};
 
 ok 1;
 
-chdir "t" if -e "t";
-
+#chdir "t" if -e "t";
+use File::Spec;
 
 use RTF::Writer;
 
