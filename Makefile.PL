@@ -1,5 +1,5 @@
 
-# Time-stamp: "2002-12-07 23:19:41 MST"
+# Time-stamp: "2003-09-23 20:59:02 ADT"
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
@@ -14,11 +14,11 @@ WriteMakefile(
     'PREREQ_PM'     => {
        'Exporter' => 0,
        'Carp'   => 0,
-       'utf8'   => 0,
+       #'utf8'   => 0,
        'strict' => 0,
        'UNIVERSAL' => 0,
     },
-    'dist'         => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    'dist'         => { COMPRESS => 'gzip -6f', SUFFIX => 'gz', },
 );
 
 package MY;

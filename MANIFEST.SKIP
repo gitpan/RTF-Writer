@@ -1,5 +1,6 @@
 ^MANIFEST\.bak$
 Makefile(\.old)?$
+t/.*.rtf$
 \.rej$
 CVS
 blib

@@ -1,11 +1,10 @@
-
 =head1 NAME
 
 The_RTF_Cookbook -- RTF overview and quick reference
 
 =head1 SYNOPSIS
 
-  # Time-stamp: "2001-05-16 21:45:51 MDT"
+  # Time-stamp: "2003-09-23 21:27:56 ADT"
   # This document is in Perl POD format, but you can read it
   # with just an ASCII text viewer, if you want.
 
@@ -19,6 +18,10 @@ the language's entire command set.
 This short document, however, is meant as a quick reference and
 overview.  It is meant for people interested in writing programs that
 generate a minimal subset of RTF.
+
+B<I<NOTE>> : I've mostly superceded this document with my book
+I<RTF Pocket Guide>, which is much longer and more comprehensive
+-- see L<http://www.oreilly.com/catalog/rtfpg/>
 
 =head1 INTRODUCTION
 
@@ -623,7 +626,7 @@ in the RTF Spec:
 
 =head1 COPYRIGHT AND DISCLAIMER
 
-Copyright 2001 Sean M. Burke.
+Copyright 2001,2,3 Sean M. Burke.
 
 This document is not in the public domain, but you
 can redistribute this document and/or

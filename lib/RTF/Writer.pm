@@ -1,21 +1,24 @@
 
 require 5.005;   # we need m/...\z/
 package RTF::Writer;
-use strict;      # Time-stamp: "1"
+use strict;      # Time-stamp: "2003-09-23 21:26:02 ADT"
+
+BEGIN { eval {require utf8}; $INC{"utf8.pm"} = "dummy_value" if $@ }
+  # hack to allow "use utf8" under old Perls
+use utf8;
 
 die sprintf "%s can't work (yet) in a non-ASCII world", __PACKAGE__
  unless chr(65) eq 'A';
 
 use vars qw($VERSION @ISA @EXPORT_OK
-            $AUTOLOAD $AUTO_NL $WRAP @Escape $Unicode);
+            $AUTOLOAD $AUTO_NL $WRAP @Escape);
 
 $AUTO_NL = 1 unless defined $AUTO_NL;     # TODO: document
 $WRAP    = 1 unless defined $WRAP;        # TODO: document
-$Unicode = 0;  # USE OF THIS IS NOT YET IMPLEMENTED (nor documented)
 
 require Exporter;
 @ISA = ('Exporter');
-$VERSION = '1.07';
+$VERSION = '1.08';
 @EXPORT_OK = qw( inch inches in point points pt cm rtfesc );
 
 sub DEBUG () {0}
@@ -23,36 +26,27 @@ use Carp  ();
 use RTF::Writer::TableRowDecl ();
 
 #**************************************************************************
-# Not yet documented, and use of $Unicode is not yet implemented
 
 sub CHARSET_LATIN1 {
   $Escape[0xA0] = "\\~";
   $Escape[0xAD] = "\\-";
-  $Unicode = 0;
   return;
 }
 
 sub CHARSET_UNICODE {
   $Escape[0xA0] = "\\~";
   $Escape[0xAD] = "\\-";
-  $Unicode = 1;
-    # In future versions, this should be used
-    #  as a flag to enable doing the Right Thing.
   return;
 }
 
 sub CHARSET_OTHER {
   $Escape[0xA0] = "\\'a0";
   $Escape[0xAD] = "\\'ad";
-  $Unicode = 0;
   return;
 }
 
 #--------------------------------------------------------------------------
 # Init:
-
-$Unicode = ($] >= 5.7);
-
 
 # Using an array for this avoids some problems with nasty UTF8 bugs in
 #  hash lookup algorithms.
@@ -110,49 +104,27 @@ sub rtfesc {
   my $x; # scratch
   if(!defined wantarray) { # void context: alter in-place!
     for(@_) {
-      if($Unicode) {
-         use utf8; # comment out under old versions
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
-         # We escape F and . because when they're line-initial (or alone
-         # on a line), some mailers eat them or freak out.
-       } else {
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-       }
+       s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+       s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+       # We escape F and . because when they're line-initial (or alone
+       # on a line), some mailers eat them or freak out.
     }
     return;
   } elsif(wantarray) {  # return an array
-    if($Unicode) {
-      return map {;
-        use utf8; # comment out under old versions
-        ($x = $_) =~
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-        $x =~
-         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
-        $x;
-       } @_;
-    } else {
-      return map {;
-        ($x = $_) =~
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-        $x;
-       } @_;
-    }
-  } else { # return a single scalar
-    if($Unicode) {
-      use utf8; # comment out under old versions
-      ($x = ((@_ == 1) ? $_[0] : join '', @_)
-      ) =~
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-             # Escape \, {, }, -, control chars, and 7f-ff.
+    return map {;
+      ($x = $_) =~
+       s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
       $x =~
-         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
-    } else {
-      ($x = ((@_ == 1) ? $_[0] : join '', @_)
-      ) =~
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-             # Escape \, {, }, -, control chars, and 7f-ff.
-    }
+       s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+      $x;
+     } @_;
+  } else { # return a single scalar
+    ($x = ((@_ == 1) ? $_[0] : join '', @_)
+    ) =~
+       s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+           # Escape \, {, }, -, control chars, and 7f-ff.
+    $x =~
+       s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
 
     return $x;
   }
@@ -162,7 +134,7 @@ sub rtfesc {
 #**************************************************************************
 
 sub new_to_file {
-  # just a wrapeer around new_to_fh
+  # just a wrapper around new_to_fh
   my $class = shift;
   defined $_[0] or Carp::croak "undef isn't a good filename for new_to_file";
   length $_[0] or Carp::croak "\"\" isn't a good filename for new_to_file";
@@ -244,16 +216,11 @@ sub printf {
       next if !defined($_[$i]) or !length($_[$i]) or
        $_[$i] =~ m/^[+-]?(?=\d|\.\d)\d*(?:\.\d*)?(?:[Ee](?:[+-]?\d+))?\z/s;
       
-      if($Unicode) {
-        use utf8; # comment out under old versions
-        ($str = $_[$i]) =~
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-        $str =~
-         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
-      } else {
-        ($str = $_[$i]) =~
-         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
-      }
+      ($str = $_[$i]) =~
+       s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+       $str =~
+       s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+
       # Don't bother applying wrapping, I guess.
       
       DEBUG > 2 and print "Escaping <$_[$i]> to <$str>\n";
@@ -372,7 +339,14 @@ sub row {
   push @_, \'' unless @_;
   
   my $cell_count = @_;
-  unshift @_, \'\pard\intbl';
+  
+  
+  my @inits = $decl->cell_content_init;
+  
+  unshift @_,
+  \(
+    '\pard\intbl' . ( shift(@inits) || '' )
+  );
   for(my $i = 1; $i < @_; $i += 2) {
     if(defined($_) and ref($_) eq '' and -1 != index($_[$i], "\f")) {
       # The one case where we need to mess with things: if there's a
@@ -381,7 +355,9 @@ sub row {
       $x =~ tr/\f/\n/;
       splice @_, $i, 1, $x;  # Swap in the copy, not touching the original.
     }
-    splice(@_, $i + 1, 0, \'\cell\pard\intbl');
+    splice(@_, $i + 1, 0, \(
+      '\cell\pard\intbl' . (shift(@inits) || '')
+    ));
   }
   $_[-1] = \'\cell\row\pard';
 
@@ -412,6 +388,96 @@ sub number_pages {
 sub paragraph {
   my $r = shift;
   $r->print(\"{\\pard\n", @_, \"\n\\par}\n\n");
+}
+
+#**************************************************************************
+
+sub image_paragraph {
+  my $r = shift;
+  my($filename, $declcode) = $r->_image_params(@_);
+  return unless $r->print( \"{\\pard\\qc\n{\\pict\n", \$declcode);
+  $r->_image_data($filename) or return;
+  $r->print(               \"}\n\\par}\n\n"                   );
+}
+
+sub paragraph_image   { shift->image_paragraph(@_) }
+sub paragraph_picture { shift->image_paragraph(@_) }
+sub picture_paragraph { shift->image_paragraph(@_) }
+
+sub pict              { shift->image(@_)           }
+
+sub image {
+  Carp::croak "Don't call \$rtf->image(...) in void context!"
+   unless defined wantarray;
+  my $r = shift;
+  my($filename, $declcode) = $r->_image_params(@_);
+  my $out = "\\pict\n$declcode";
+  $r->_image_data($filename, \$out );
+  $out .= "}\n";
+  return \$out;
+}
+
+#--------------------------------------------------------------------------
+
+sub _image_params {
+  my $self = shift;
+  
+  my %o = @_;
+  my $decl;
+  my $filespec = $o{'filename'} || Carp::croak "What filename?";
+  Carp::croak "No such file as $filespec"
+   unless $filespec and -e $filespec;
+
+  if(defined $o{'picspecs'}) {
+    $decl =  $o{'picspecs'};
+    $decl =  $$decl if ref $decl;
+  } else {
+    require Image::Size;
+    my($h,$w, $type) = Image::Size::imgsize( $filespec );
+    Carp::croak "$filespec - $type" unless $h and $w;
+
+    my $tag =
+        ($type eq 'PNG') ?  '\pngblip'
+      : ($type eq 'JPG') ? '\jpegblip'
+      : Carp::croak("I can't handle images of type $type like $filespec");
+    ;
+    $decl = "$tag\\picw$w\\pich$h\n";
+
+    # Now glom on any extra parameters specified:
+    $decl .= join '',
+      map sprintf("\\pic%s%s\n", $_, int $o{$_}),
+      grep defined($o{$_}),
+      qw<wgoal hgoal scalex scaley cropt cropb cropr cropl>
+    ;
+  }
+
+  return( $filespec, $decl );
+}
+
+
+sub _image_data {
+  my($r, $filename, $to) = @_;
+
+  my $buffer;
+  my $in;
+  {
+    local(*IMAGE);
+    open(IMAGE, $filename) or Carp::croak "Can't read-open $filename: $!";
+    $in = *IMAGE;
+  }
+  binmode($in);
+  while( read($in, $buffer, 32) ) {
+    if($to) {
+      $$to .=       unpack("H*", $buffer) . "\n"    ;
+    } else {
+      $r->print( \( unpack("H*", $buffer) . "\n" ) ) or return 0;
+    }
+    #  Turn 32 bytes into 64 hex characters, and then add a newline.
+    #  (If the last chunk of data is under 32 bytes, then the unpack()
+    #  does the right thing.)
+  }
+  CORE::close($in);
+  return 1;
 }
 
 #**************************************************************************
@@ -585,16 +651,10 @@ sub prolog {
 sub escape_broadly {
   # Non-destructively quote anything fishy.
   my $scratch = $_[0];
-  if($Unicode) {
-    use utf8; # comment out under old versions
-    $scratch =~
-         s/([F\.\x00-\x1F\\\{\}\x7F-\xFF])/"\\'".(unpack("H2",$1))/eg; # ESCAPER
-    $scratch =~
-           s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
-  } else {
-    $scratch =~
-         s/([F\.\x00-\x1F\\\{\}\x7F-\xFF])/"\\'".(unpack("H2",$1))/eg; # ESCAPER
-  }
+  $scratch =~
+       s/([F\.\x00-\x1F\\\{\}\x7F-\xFF])/"\\'".(unpack("H2",$1))/eg; # ESCAPER
+  $scratch =~
+       s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
   return $scratch;
 }
 
@@ -664,18 +724,12 @@ sub _make_emitter_closure {
         }
         
       } elsif(length $x) { # It's plaintext
-        if( $Unicode ) {
-          use utf8;
-          ($scratch = $x) =~
-              s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/eg;  # ESCAPER
-          $scratch =~
-              s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
-        } else {
-          ($scratch = $x) =~
-              s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]||print "What value for $1?\n";/eg;  # ESCAPER
-        }
+        ($scratch = $x) =~
+            s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/eg;  # ESCAPER
+        $scratch =~
+            s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
 
-         # Escape \, {, }, -, control chars, and 7f-ff.
+         # Escape \, {, }, -, control chars, and 7f-ff, and Unicode.
 
         # And now: a not terribly clever algorithm for inserting newlines
         # at a guaranteed harmless place: after a block of whitespace
