@@ -1,7 +1,7 @@
 
 require 5;
 package RTF::Writer::TableRowDecl;
-use strict;  # Time-stamp: "2001-04-24 01:51:27 MDT"
+use strict;  # Time-stamp: "2001-05-16 21:47:13 MDT"
 use Carp ();
 
 #sub DEBUG () {1};
@@ -109,7 +109,7 @@ __END__
 
 =head1 NAME
 
-RTF::Writer::RowDecl - class for RTF table settings
+RTF::Writer::TableRowDecl - class for RTF table settings
 
 =head1 SYNOPSIS
 

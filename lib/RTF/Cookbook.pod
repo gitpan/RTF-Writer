@@ -5,7 +5,7 @@ The_RTF_Cookbook -- RTF overview and quick reference
 
 =head1 SYNOPSIS
 
-  # Time-stamp: "2001-04-26 16:45:15 MDT"
+  # Time-stamp: "2001-05-16 21:45:51 MDT"
   # This document is in Perl POD format, but you can read it
   # with just an ASCII text viewer, if you want.
 
@@ -345,7 +345,7 @@ and \fs40 to change the current point size to 20-point.  The integer
 parameter for the \fsN command is in half-points, so that's why 40
 means 20-point type.  \fsN is is one of the few commands in RTF
 (and the only one that I mention here) that expresses size/distance in
-units other than other than twips.
+units other than twips.
 
 Character formatting codes are given further below, and they are
 relatively straightforward.
