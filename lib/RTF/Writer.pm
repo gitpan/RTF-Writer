@@ -1,6 +1,6 @@
 
 require 5.005;   # we need m/...\z/
-use strict;      # Time-stamp: "2001-04-24 01:50:54 MDT"
+use strict;      # Time-stamp: "2001-04-26 16:47:51 MDT"
 package RTF::Writer;
 use vars qw($VERSION @ISA @EXPORT_OK
             $AUTOLOAD $AUTO_NL $WRAP %Escape $Unicode);
@@ -11,7 +11,7 @@ $Unicode = 0;  # USE OF THIS IS NOT YET IMPLEMENTED (nor documented)
 
 require Exporter;
 @ISA = ('Exporter');
-$VERSION = '1.01';
+$VERSION = '1.02';
 @EXPORT_OK = qw( inch inches in point points pt cm rtfesc );
 
 sub DEBUG () {0}

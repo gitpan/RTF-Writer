@@ -3,9 +3,9 @@ Makefile.PL
 MANIFEST
 README
 test.pl
-la_dame.rtf
-demo_writer.pl
-RTF/Cookbook.pod
-RTF/Writer.pm
-RTF/Writer.pod
-RTF/Writer/TableRowDecl.pm
+examples/la_dame.rtf
+examples/demo_writer.pl
+lib/RTF/Cookbook.pod
+lib/RTF/Writer.pm
+lib/RTF/Writer.pod
+lib/RTF/Writer/TableRowDecl.pm

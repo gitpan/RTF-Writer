@@ -1,11 +1,11 @@
 
 =head1 NAME
 
-The RTF Cookbook -- RTF overview and quick reference
+The_RTF_Cookbook -- RTF overview and quick reference
 
 =head1 SYNOPSIS
 
-  # Time-stamp: "2001-04-24 01:51:15 MDT"
+  # Time-stamp: "2001-04-26 16:45:15 MDT"
   # This document is in Perl POD format, but you can read it
   # with just an ASCII text viewer, if you want.
 

@@ -1,6 +1,12 @@
 Revision history for Perl extension RTF::Writer
-                                        Time-stamp: "2001-04-24 01:42:05 MDT"
+                                        Time-stamp: "2001-04-26 16:41:20 MDT"
 
+	
+2001-04-26  Sean M. Burke  sburke@cpan.org
+
+	* Release 1.02 -- no substantive changes; just fixing the
+	horribly screwed up makefile.
+	
 2001-04-24  Sean M. Burke  sburke@cpan.org
 
 	* Release 1.01 -- first public release

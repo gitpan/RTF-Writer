@@ -1,5 +1,5 @@
 README for RTF::Writer
-                                        Time-stamp: "2001-04-24 02:14:51 MDT"
+                                        Time-stamp: "2001-04-26 17:12:12 MDT"
 
 [Excerpted from the POD...]
 
@@ -65,7 +65,7 @@ under perl 5.004, email me and I'll suggest how to get it to work.
 
 INSTALLATION
 
-You install Pod::HTML2Pod, as you would install any Perl module
+You install RTF::Writer et al, as you would install any Perl module
 library, by running these commands:
 
    perl Makefile.PL
@@ -77,9 +77,18 @@ If you want to install a private copy of RTF::Writer in your home
 directory, then you should try to produce the initial Makefile with
 something like this command:
 
-  perl Makefile.PL LIB=~/perl
+  perl Makefile.PL PREFIX=~/perl
 
-See perldoc perlmodinstall for more information.
+See perldoc perlmodinstall for more information and advice.
+
+
+!!!!!!!!!!SPECIAL NOTE!!!!!!!!!!
+
+The distribution archive contains two files of some interest, in the
+examples/ directory.  They do not get installed anywhere by the "make
+install" command, but you should look at them:
+ demo_writer.pl -- sample program using RTF::Writer to generate output.
+ la_dame.rtf -- the "sample complete RTF file" from RTF::Cookbook.
 
 
 DOCUMENTATION
@@ -91,8 +100,8 @@ ChangeLog for recent changes.
 
 MACPERL INSTALLATION NOTES
 
-Don't bother with the makefiles.  Just move the RTF directory
-itno your MacPerl site_lib or lib directory.
+Don't bother with the makefiles.  Just move the lib/RTF directory
+into your MacPerl site_lib or lib directory.
 
 
 SUPPORT
