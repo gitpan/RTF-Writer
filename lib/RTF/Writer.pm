@@ -1,7 +1,7 @@
 
 require 5.005;   # we need m/...\z/
 package RTF::Writer;
-use strict;      # Time-stamp: "2003-09-23 21:26:02 ADT"
+use strict;      # Time-stamp: "2003-09-26 13:48:31 ADT"
 
 BEGIN { eval {require utf8}; $INC{"utf8.pm"} = "dummy_value" if $@ }
   # hack to allow "use utf8" under old Perls
@@ -18,7 +18,7 @@ $WRAP    = 1 unless defined $WRAP;        # TODO: document
 
 require Exporter;
 @ISA = ('Exporter');
-$VERSION = '1.08';
+$VERSION = '1.09';
 @EXPORT_OK = qw( inch inches in point points pt cm rtfesc );
 
 sub DEBUG () {0}

@@ -1,6 +1,10 @@
 Revision history for Perl extension RTF::Writer
-                                        Time-stamp: "2003-09-23 21:36:13 ADT"
+                                        Time-stamp: "2003-09-26 13:49:39 ADT"
 
+2003-09-26  Sean M. Burke  sburke@cpan.org
+	* Release 1.09
+	* Just fixed the Makefile.PL to declare the Image::Size dependency.
+	
 2003-09-23  Sean M. Burke  sburke@cpan.org
 	* Release 1.08
 

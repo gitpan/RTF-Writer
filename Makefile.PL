@@ -1,5 +1,5 @@
 
-# Time-stamp: "2003-09-23 20:59:02 ADT"
+# Time-stamp: "2003-09-26 13:47:59 ADT"
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
@@ -15,6 +15,7 @@ WriteMakefile(
        'Exporter' => 0,
        'Carp'   => 0,
        #'utf8'   => 0,
+       'Image::Size' => 0, # I /think/ any version'll do
        'strict' => 0,
        'UNIVERSAL' => 0,
     },
