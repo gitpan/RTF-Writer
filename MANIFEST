@@ -1,11 +1,12 @@
 ChangeLog
-Makefile.PL
 MANIFEST
+MANIFEST.SKIP
+Makefile.PL
 README
-test.pl
-examples/la_dame.rtf
 examples/demo_writer.pl
+examples/la_dame.rtf
 lib/RTF/Cookbook.pod
 lib/RTF/Writer.pm
 lib/RTF/Writer.pod
 lib/RTF/Writer/TableRowDecl.pm
+t/rtf_test.t

@@ -1,6 +1,6 @@
 
 require 5.005; # we need m/...\z/
-# Time-stamp: "2001-07-27 13:54:44 MDT"
+# Time-stamp: "2002-12-07 23:15:42 MST"
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'

@@ -1,5 +1,5 @@
-# This -*- perl -*- script writes the Makefile for this dist
-# Time-stamp: "2001-04-26 16:40:32 MDT"
+
+# Time-stamp: "2002-12-07 23:19:41 MST"
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
@@ -10,6 +10,14 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	   => 'RTF::Writer',
     'VERSION_FROM' => 'lib/RTF/Writer.pm', # finds $VERSION
+    'ABSTRACT_FROM' => 'lib/RTF/Writer.pod',
+    'PREREQ_PM'     => {
+       'Exporter' => 0,
+       'Carp'   => 0,
+       'utf8'   => 0,
+       'strict' => 0,
+       'UNIVERSAL' => 0,
+    },
     'dist'         => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );
 

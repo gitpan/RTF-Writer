@@ -1,9 +1,13 @@
 
 require 5.005;   # we need m/...\z/
-use strict;      # Time-stamp: "2001-07-27 13:29:30 MDT"
 package RTF::Writer;
+use strict;      # Time-stamp: "1"
+
+die sprintf "%s can't work (yet) in a non-ASCII world", __PACKAGE__
+ unless chr(65) eq 'A';
+
 use vars qw($VERSION @ISA @EXPORT_OK
-            $AUTOLOAD $AUTO_NL $WRAP %Escape $Unicode);
+            $AUTOLOAD $AUTO_NL $WRAP @Escape $Unicode);
 
 $AUTO_NL = 1 unless defined $AUTO_NL;     # TODO: document
 $WRAP    = 1 unless defined $WRAP;        # TODO: document
@@ -11,27 +15,26 @@ $Unicode = 0;  # USE OF THIS IS NOT YET IMPLEMENTED (nor documented)
 
 require Exporter;
 @ISA = ('Exporter');
-$VERSION = '1.06';
+$VERSION = '1.07';
 @EXPORT_OK = qw( inch inches in point points pt cm rtfesc );
 
 sub DEBUG () {0}
 use Carp  ();
 use RTF::Writer::TableRowDecl ();
 
-
 #**************************************************************************
 # Not yet documented, and use of $Unicode is not yet implemented
 
 sub CHARSET_LATIN1 {
-  $Escape{"\xA0"} = "\\~";
-  $Escape{"\xAD"} = "\\-";
+  $Escape[0xA0] = "\\~";
+  $Escape[0xAD] = "\\-";
   $Unicode = 0;
   return;
 }
 
 sub CHARSET_UNICODE {
-  $Escape{"\xA0"} = "\\~";
-  $Escape{"\xAD"} = "\\-";
+  $Escape[0xA0] = "\\~";
+  $Escape[0xAD] = "\\-";
   $Unicode = 1;
     # In future versions, this should be used
     #  as a flag to enable doing the Right Thing.
@@ -39,8 +42,8 @@ sub CHARSET_UNICODE {
 }
 
 sub CHARSET_OTHER {
-  $Escape{"\xA0"} = "\\'a0";
-  $Escape{"\xAD"} = "\\'ad";
+  $Escape[0xA0] = "\\'a0";
+  $Escape[0xAD] = "\\'ad";
   $Unicode = 0;
   return;
 }
@@ -48,28 +51,43 @@ sub CHARSET_OTHER {
 #--------------------------------------------------------------------------
 # Init:
 
-%Escape = (
-  map( (chr($_),chr($_)),       # things not apparently needing escaping
-       0x20 .. 0x7E ),
-  map( (chr($_),sprintf("\\'%02x", $_)),    # apparently escapeworthy things
-       0x00 .. 0x1F, 0x5c, 0x7b, 0x7d, 0x7f .. 0xFF),
-       
-  # And some refinements:
-  
-  "\cm"  => '',
-  "\cj"  => '',
-  "\n"   => "\n\\line ",
-   # This bit of voodoo means that whichever of \cm | \cj isn't synonymous
-   #  with \n, is aliased to empty-string, and whichever of them IS "\n",
-   #  turns into the "\n\\line ".
-  
-  "\t"   => "\\tab ",     # Tabs (altho theoretically raw \t's might be okay)
-  "\f"   => "\n\\page\n", # Formfeed
-  "-"    => "\\_",        # Turn plaintext '-' into a non-breaking hyphen
-                          #   I /think/ that's for the best.
-  "\xA0" => "\\~",        # \xA0 is Latin-1/Unicode non-breaking space
-  "\xAD" => "\\-",        # \xAD is Latin-1/Unicode soft (optional) hyphen
-);
+$Unicode = ($] >= 5.7);
+
+
+# Using an array for this avoids some problems with nasty UTF8 bugs in
+#  hash lookup algorithms.
+
+@Escape = map sprintf("\\'%02x", $_), 0x00 .. 0xFF;
+foreach my $i ( 0x20 .. 0x7E ) {  $Escape[$i] = chr($i) }
+
+{
+  my @refinements = (
+   "\\" => "\\'5c",
+   "{"  => "\\'7b",
+   "}"  => "\\'7d",
+   
+   "\cm"  => '',
+   "\cj"  => '',
+   "\n"   => "\n\\line ",
+    # This bit of voodoo means that whichever of \cm | \cj isn't synonymous
+    #  with \n, is aliased to empty-string, and whichever of them IS "\n",
+    #  turns into the "\n\\line ".
+   
+   "\t"   => "\\tab ",     # Tabs (altho theoretically raw \t's might be okay)
+   "\f"   => "\n\\page\n", # Formfeed
+   "-"    => "\\_",        # Turn plaintext '-' into a non-breaking hyphen
+                           #   I /think/ that's for the best.
+   "\xA0" => "\\~",        # \xA0 is Latin-1/Unicode non-breaking space
+   "\xAD" => "\\-",        # \xAD is Latin-1/Unicode soft (optional) hyphen
+   '.' => "\\'2e",
+   'F' => "\\'46",
+  );
+  my($char, $esc);
+  while(@refinements) {
+    ($char, $esc) = splice @refinements,0,2;
+    $Escape[ord $char] = $esc;
+  }
+}
 
 #--------------------------------------------------------------------------
 
@@ -92,19 +110,50 @@ sub rtfesc {
   my $x; # scratch
   if(!defined wantarray) { # void context: alter in-place!
     for(@_) {
-         s/([\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape{$1}/g;  # ESCAPER
+      if($Unicode) {
+         use utf8; # comment out under old versions
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+         # We escape F and . because when they're line-initial (or alone
+         # on a line), some mailers eat them or freak out.
+       } else {
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+       }
     }
     return;
   } elsif(wantarray) {  # return an array
-    return map {; ($x = $_) =~
-         s/([\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape{$1}/g;  # ESCAPER
-         $x;
-        } @_;
+    if($Unicode) {
+      return map {;
+        use utf8; # comment out under old versions
+        ($x = $_) =~
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+        $x =~
+         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+        $x;
+       } @_;
+    } else {
+      return map {;
+        ($x = $_) =~
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+        $x;
+       } @_;
+    }
   } else { # return a single scalar
-    ($x = ((@_ == 1) ? $_[0] : join '', @_)
-    ) =~
-         s/([\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape{$1}/g;  # ESCAPER
+    if($Unicode) {
+      use utf8; # comment out under old versions
+      ($x = ((@_ == 1) ? $_[0] : join '', @_)
+      ) =~
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
              # Escape \, {, }, -, control chars, and 7f-ff.
+      $x =~
+         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+    } else {
+      ($x = ((@_ == 1) ? $_[0] : join '', @_)
+      ) =~
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+             # Escape \, {, }, -, control chars, and 7f-ff.
+    }
+
     return $x;
   }
 }
@@ -124,7 +173,10 @@ sub new_to_file {
   return $new;
 }
 
-sub new_to_fh {
+sub new_to_filehandle { shift->new_to_handle(@_) }
+sub new_to_handle     { shift->new_to_fh(    @_) }
+
+sub new_to_fh { # legacy
   Carp::croak "Open to what filehandle?"
    unless defined $_[1] and length $_[1];
   my $fh = $_[1];
@@ -192,8 +244,16 @@ sub printf {
       next if !defined($_[$i]) or !length($_[$i]) or
        $_[$i] =~ m/^[+-]?(?=\d|\.\d)\d*(?:\.\d*)?(?:[Ee](?:[+-]?\d+))?\z/s;
       
-      ($str = $_[$i]) =~
-         s/([\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape{$1}/g;  # ESCAPER
+      if($Unicode) {
+        use utf8; # comment out under old versions
+        ($str = $_[$i]) =~
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+        $str =~
+         s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+      } else {
+        ($str = $_[$i]) =~
+         s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/g;  # ESCAPER
+      }
       # Don't bother applying wrapping, I guess.
       
       DEBUG > 2 and print "Escaping <$_[$i]> to <$str>\n";
@@ -355,6 +415,10 @@ sub paragraph {
 }
 
 #**************************************************************************
+
+# two tolerated variant forms:
+sub prologue { shift->prolog(@_) }
+sub premable { shift->prolog(@_) }
 
 sub prolog {
   # Emit prolog with given parameters
@@ -521,8 +585,16 @@ sub prolog {
 sub escape_broadly {
   # Non-destructively quote anything fishy.
   my $scratch = $_[0];
-  $scratch =~ s/([\x00-\x1F\\\{\}\x7F-\xFF])/"\\'".(unpack("H2",$1))/eg;
-   # Escape \, {, }, -, control chars, and 7f-ff.
+  if($Unicode) {
+    use utf8; # comment out under old versions
+    $scratch =~
+         s/([F\.\x00-\x1F\\\{\}\x7F-\xFF])/"\\'".(unpack("H2",$1))/eg; # ESCAPER
+    $scratch =~
+           s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+  } else {
+    $scratch =~
+         s/([F\.\x00-\x1F\\\{\}\x7F-\xFF])/"\\'".(unpack("H2",$1))/eg; # ESCAPER
+  }
   return $scratch;
 }
 
@@ -592,20 +664,33 @@ sub _make_emitter_closure {
         }
         
       } elsif(length $x) { # It's plaintext
-        ($scratch = $x) =~
-            s/([\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape{$1}/g;  # ESCAPER
+        if( $Unicode ) {
+          use utf8;
+          ($scratch = $x) =~
+              s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]/eg;  # ESCAPER
+          $scratch =~
+              s/([^\x00-\xFF])/'\\uc1\\u'.((ord($1)<32768)?ord($1):(ord($1)-65536)).'?'/eg;
+        } else {
+          ($scratch = $x) =~
+              s/([F\.\x00-\x1F\-\\\{\}\x7F-\xFF])/$Escape[ord$1]||print "What value for $1?\n";/eg;  # ESCAPER
+        }
+
          # Escape \, {, }, -, control chars, and 7f-ff.
 
         # And now: a not terribly clever algorithm for inserting newlines
-        # at a guaranteed harmless place: before a block of whitespace
+        # at a guaranteed harmless place: after a block of whitespace
         # after the 65th column.
+        # Why not before the block of whitespace?  Consider:
+        #  q<\foo bar>  If we break that into q<\foo>+NL+q< bar>, then
+        # suddenly the space after the newline is significant, instead
+        # of just being the dummy space that ends the \foo command token.
         $scratch =~
          s/(
             [^\cm\cj\n]{65}        # Snare 65 characters from a line
             [^\cm\cj\n\x20]{0,50}  #  and finish any current word
            )
            (\x20{1,10})(?![\cm\cj\n]) # capture some spaces not at line-end
-          /$1\n$2/gx     # and put a NL before those spaces
+          /$1$2\n/gx     # and put a NL after those spaces
         if $WRAP;
          # This may wrap at well past the 65th column, but not past the 120th.
         $sr ? ( $$sr .= $scratch ) : print $fh $scratch;

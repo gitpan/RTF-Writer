@@ -1,9 +1,36 @@
 Revision history for Perl extension RTF::Writer
-                                        Time-stamp: "2001-07-27 13:35:00 MDT"
+                                        Time-stamp: "2002-12-07 23:54:35 MST"
 
+2002-12-07  Sean M. Burke  sburke@cpan.org
+	* Release 1.07
+
+	Bugfix: changed internal object %Escape to @Escape, to get around
+	some utf8 bugs in hash lookups on utf8-strings.
+
+	Bugfix: Now handles Unicode characters.  But now requires
+	the utf8 module.  Probably won't work under versions before 5.6 --
+	altho you could always create a utf8.pm consisting of just "1;".
+
+	Bugfix: minor change to the code that inserts newlines in the
+	output RTF.  Previous versions could erroneously change
+	"\foo \bar" to "\foo[NL] \bar".  Now correctly changes to
+	"\foo [NL]\bar".
+
+	Bugfix: the pod documented a new_to_handle, but the routine was
+	previously called new_to_fh.  Now there's a new new_to_handle
+	aliases to new_to_handle.
+
+	Added compile-time assertion that module is running in an ASCII
+	world.  It never worked right under EBCDIC (etc) anyway.
+
+	Full Unicode support doesn't really turn on unless you're under
+	Perl 5.7 or later.  Altho you can force it by turning on
+	$RTF::Writer::Unicode.  I do this to get around some segfaulty
+	errors under 5.6.
+	
 2001-07-27  Sean M. Burke  sburke@cpan.org
 
-	* Releas. 1.06 -- bugfix: TableRowDecl would emit pointless
+	* Release 1.06 -- bugfix: TableRowDecl would emit pointless
 	warnings because of int()ing an undefined value.  Fixed.
 	
 2001-06-21  Sean M. Burke  sburke@cpan.org
