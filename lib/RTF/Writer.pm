@@ -1,6 +1,6 @@
 
 require 5.005;   # we need m/...\z/
-use strict;      # Time-stamp: "2001-05-27 19:38:40 MDT"
+use strict;      # Time-stamp: "2001-06-21 20:17:36 MDT"
 package RTF::Writer;
 use vars qw($VERSION @ISA @EXPORT_OK
             $AUTOLOAD $AUTO_NL $WRAP %Escape $Unicode);
@@ -11,7 +11,7 @@ $Unicode = 0;  # USE OF THIS IS NOT YET IMPLEMENTED (nor documented)
 
 require Exporter;
 @ISA = ('Exporter');
-$VERSION = '1.04';
+$VERSION = '1.05';
 @EXPORT_OK = qw( inch inches in point points pt cm rtfesc );
 
 sub DEBUG () {0}
@@ -118,7 +118,7 @@ sub new_to_file {
   defined $_[0] or Carp::croak "undef isn't a good filename for new_to_file";
   length $_[0] or Carp::croak "\"\" isn't a good filename for new_to_file";
   local(*FH);
-  open(FH, ">$_[0]") or Carp::croak "Can't write-open $_[0]: $1";
+  open(FH, ">$_[0]") or Carp::croak "Can't write-open $_[0]: $!";
   DEBUG and print "Opened-file $_[0] -> ", *FH{IO}, "\n";
   my $new = $class->new_to_fh(*FH{IO});
   return $new;
