@@ -1,4 +1,6 @@
 
+#Time-stamp: "2003-11-04 02:16:21 AST"
+
 =head1 NAME
 
 RTF::Writer - for generating documents in Rich Text Format
@@ -443,7 +445,7 @@ for this row.
 
 Example:
 
-    my $decl = RTF::Writer::TableRowDecl->new('widths' => [1500,1900];
+    my $decl = RTF::Writer::TableRowDecl->new('widths' => [1500,1900]);
     $h->row($decl, "Stuff", "Hmmm");
     $h->row($decl, [\'\ul', 'Foo'], 'Bar', \'\bullet');
     $h->row($decl, "Hooboy.");

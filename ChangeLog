@@ -1,6 +1,14 @@
 Revision history for Perl extension RTF::Writer
-                                        Time-stamp: "2003-10-14 18:34:50 ADT"
+                                        Time-stamp: "2003-11-04 02:20:02 AST"
 
+2003-11-04  Sean M. Burke  sburke@cpan.org
+	* Release 1.11
+	* Minor bugfix version
+	* Vitor Hugo reports a problem where ->image and ->image_paragraph
+	when called with a picspecs parameter would forget to put
+	whitespace before the start of the picture data.  Fixed!
+	* A few little doc typoes fixed.
+	
 2003-10-14  Sean M. Burke  sburke@cpan.org
 	* Release 1.10
 	* Loïc Bourgeois catches a nasty error with $rtf->image -- it

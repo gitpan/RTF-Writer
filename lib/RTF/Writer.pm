@@ -1,7 +1,7 @@
 
 require 5.005;   # we need m/...\z/
 package RTF::Writer;
-use strict;      # Time-stamp: "2003-10-14 18:18:00 ADT"
+use strict;      # Time-stamp: "2003-11-04 02:13:08 AST"
 
 BEGIN { eval {require utf8}; $INC{"utf8.pm"} = "dummy_value" if $@ }
   # hack to allow "use utf8" under old Perls
@@ -18,7 +18,7 @@ $WRAP    = 1 unless defined $WRAP;        # TODO: document
 
 require Exporter;
 @ISA = ('Exporter');
-$VERSION = '1.10';
+$VERSION = '1.11';
 @EXPORT_OK = qw( inch inches in point points pt cm rtfesc );
 
 sub DEBUG () {0}
@@ -445,11 +445,12 @@ sub _image_params {
 
     # Now glom on any extra parameters specified:
     $decl .= join '',
-      map sprintf("\\pic%s%s\n", $_, int $o{$_}),
+      map sprintf("\\pic%s%s", $_, int $o{$_}),
       grep defined($o{$_}),
       qw<wgoal hgoal scalex scaley cropt cropb cropr cropl>
     ;
   }
+  $decl .= "\n";  # So it doesn't run together with the image data.
 
   return( $filespec, $decl );
 }
