@@ -1,0 +1,11 @@
+ChangeLog
+Makefile.PL
+MANIFEST
+README
+test.pl
+la_dame.rtf
+demo_writer.pl
+RTF/Cookbook.pod
+RTF/Writer.pm
+RTF/Writer.pod
+RTF/Writer/TableRowDecl.pm
