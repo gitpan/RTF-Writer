@@ -1,5 +1,5 @@
 
-# Time-stamp: "2001-04-24 02:11:53 MDT"
+# Time-stamp: "2001-05-27 19:35:15 MDT"
 
 =head1 NAME
 
@@ -205,7 +205,7 @@ but should (instead?) go just after the prolog, with other "document
 formatting" commands described in the "Document Formatting Properties"
 section of the RTF Specification.
 
-=item 'doccommt' => STRING,
+=item 'doccomm' => STRING,
 
 This value is for the "document comment" metainformation item in
 the prolog, which appears as the "Comment" field in the "File Properties"
@@ -406,7 +406,7 @@ which is 6 points, 1/12th-inch, about 2mm.
 This expresses the widths of each of the cells in this row,
 starting from the leftmost.
 
-=item widths => [TWIPS, TWIPS, TWIPS, ... ],
+=item reaches => [TWIPS, TWIPS, TWIPS, ... ],
 
 This expresses the rightmost extreme of each of the cells in
 this row.

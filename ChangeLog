@@ -1,6 +1,11 @@
 Revision history for Perl extension RTF::Writer
-                                        Time-stamp: "2001-05-16 21:50:35 MDT"
+                                        Time-stamp: "2001-05-27 19:37:49 MDT"
 
+2001-05-27  Sean M. Burke  sburke@cpan.org
+	
+	* Release 1.04 -- fixing some doc typos caught by
+	Matt Olson <matto@advanis.ca> and "David D. Kilzer"
+	<ddkilzer@theracingworld.com>
 	
 2001-05-16  Sean M. Burke  sburke@cpan.org
 
