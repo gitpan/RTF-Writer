@@ -1,6 +1,6 @@
 
 require 5.005; # we need m/...\z/
-# Time-stamp: "2001-04-26 16:51:11 MDT"
+# Time-stamp: "2001-07-27 13:54:44 MDT"
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
@@ -9,14 +9,15 @@ require 5.005; # we need m/...\z/
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..3\n"; }
+BEGIN { $^W = 1; $| = 1; print "1..3\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use RTF::Writer ('rtfesc');
 
 $loaded = 1;
 print "ok 1\n";
 
-print "RTF::Writer version: $RTF::Writer::VERSION\n";
+print "# RTF::Writer version: $RTF::Writer::VERSION\n",
+      "# Perl version: $] on OS \"$^O\"\n";
 
 # Pretty elementary test.
 
@@ -36,7 +37,6 @@ if($x eq "foo\\'7b\\'5c\n\\line ") {
 } else {
   print "fail 3 <$x>\n"
 }
-
 
 ###########################################################################
 $| = 1;

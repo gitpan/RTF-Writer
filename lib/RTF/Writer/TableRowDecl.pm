@@ -1,7 +1,7 @@
 
 require 5;
 package RTF::Writer::TableRowDecl;
-use strict;  # Time-stamp: "2001-05-16 21:47:13 MDT"
+use strict;  # Time-stamp: "2001-07-27 13:49:47 MDT"
 use Carp ();
 
 #sub DEBUG () {1};
@@ -21,8 +21,8 @@ sub new {
   } else {
     $new = bless [
       \@reaches,
-      int( $h{'left_start'} ) || 0,
-      int( $h{'inbetween' } ) || 120,  # 6 points, 1/12th-inch, about 2mm
+      int( $h{'left_start'} || 0) || 0,
+      int( $h{'inbetween' } || 0) || 120,  # 6 points, 1/12th-inch, about 2mm
     ];
   }
   

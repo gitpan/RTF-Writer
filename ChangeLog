@@ -1,6 +1,11 @@
 Revision history for Perl extension RTF::Writer
-                                        Time-stamp: "2001-06-21 20:19:37 MDT"
+                                        Time-stamp: "2001-07-27 13:35:00 MDT"
 
+2001-07-27  Sean M. Burke  sburke@cpan.org
+
+	* Releas. 1.06 -- bugfix: TableRowDecl would emit pointless
+	warnings because of int()ing an undefined value.  Fixed.
+	
 2001-06-21  Sean M. Burke  sburke@cpan.org
 	
 	* Release 1.05 -- bugfix: on failure, new_to_file stupidly
